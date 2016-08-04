@@ -13,6 +13,11 @@ buildscript {
     }
 }
 
+task testReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/allTests")
+    reportOn subprojects.collect { it.tasks.withType(Test) }
+}
+
 allprojects {
     repositories {
         jcenter()
