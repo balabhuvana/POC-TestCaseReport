@@ -7,15 +7,35 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
 
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
-task testReport(type: TestReport) {
+task testReport(type: TestReport, dependsOn: 'cleanTempDir') {
     destinationDir = file("$buildDir/reports/allTests")
     reportOn subprojects.collect { it.tasks.withType(Test) }
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
+
+task cleanTempDir(type: Delete) {
+    delete fileTree(dir: "app/testCaseReports", exclude: "testss.txt")
+}
+
+task generateReportsTask(dependsOn: 'testReport') << {
+    task(zipSomethingElse, type: Zip) {
+        def toLocation = new File('app/testCaseReports')
+        destinationDir toLocation
+        archiveName 'POC_TestCase_Report_' + getDate() + '.zip'
+        def fromLocation = file("$buildDir/reports/allTests")
+        from fromLocation
+        println(fromLocation)
+    }.execute()
 }
 
 allprojects {
