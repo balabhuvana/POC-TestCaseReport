@@ -7,13 +7,12 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
 
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
-task testReport(type: TestReport, dependsOn: 'cleanTempDir') {
+task testReport(type: TestReport, dependsOn: 'cleanTestCaseTempDir') {
     destinationDir = file("$buildDir/reports/allTests")
     reportOn subprojects.collect { it.tasks.withType(Test) }
 }
@@ -24,13 +23,12 @@ def getDate() {
     return formattedDate
 }
 
-task cleanTempDir(type: Delete) {
-    delete fileTree(dir: "app/testCaseReports", exclude: "testss.txt")
-    delete fileTree(dir: "app/jacocoReports", exclude: "testss.txt")
+task cleanTestCaseTempDir(type: Delete) {
+    delete fileTree(dir: "app/testCaseReports", exclude: "test.txt")
 }
 
 task generateReportsTask(dependsOn: 'testReport') << {
-    task(zipSomethingElse, type: Zip) {
+    task(zipSomethingTestElse, type: Zip) {
         def toLocation = new File('app/testCaseReports')
         destinationDir toLocation
         archiveName 'POC_TestCase_Reports_' + getDate() + '.zip'
@@ -40,16 +38,6 @@ task generateReportsTask(dependsOn: 'testReport') << {
     }.execute()
 }
 
-task generateJacocoReports(dependsOn: 'cleanTempDir') << {
-    task(zipSomethingElse, type: Zip) {
-        def toLocation = new File('app/jacocoReports')
-        destinationDir toLocation
-        archiveName 'POC_Jacoco_Reports_' + getDate() + '.zip'
-        def fromLocation = file("$buildDir/reports/jacoco")
-        from fromLocation
-        println(fromLocation)
-    }.execute()
-}
 
 allprojects {
     repositories {
